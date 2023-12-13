@@ -49,17 +49,80 @@ if (!defined("WHMCS")) {
  *
  * @return array
  */
-function provisioningmodule_MetaData()
-{
-    return array(
-        'DisplayName' => 'Console Provisioning Module',
-        'APIVersion' => '1.1', // Use API Version 1.1
-        'RequiresServer' => true, // Set true if module requires a server to work
-        'DefaultNonSSLPort' => '1111', // Default Non-SSL Connection Port
-        'DefaultSSLPort' => '1112', // Default SSL Connection Port
-        'ServiceSingleSignOnLabel' => 'Login to Panel as User',
-        'AdminSingleSignOnLabel' => 'Login to Panel as Admin',
+function nutanix_config() {
+    $configarray = array(
+        "name" => "Nutanix Module",
+        "description" => "Integrate Nutanix with WHMCS",
+        "version" => "1.0",
+        "author" => "Your Name",
+        "fields" => array(
+            "api_url" => array("FriendlyName" => "API URL", "Type" => "text"),
+            "api_key" => array("FriendlyName" => "API Key", "Type" => "text"),
+            // Add other configuration fields as needed
+        ),
     );
+    return $configarray;
+}
+
+
+function nutanix_configoptions() {
+    $configarray = array(
+        "OS" => array("Type" => "text", "Description" => "Operating System"),
+        "UEFI" => array("Type" => "yesno", "Description" => "UEFI Mode"),
+        "Memory" => array("Type" => "text", "Description" => "Memory (GB)"),
+        "VCPU" => array("Type" => "text", "Description" => "Virtual CPUs"),
+    );
+    return $configarray;
+}
+
+function nutanix_adminmenu($menuitems) {
+    $menuitems[] = array(
+        'type' => 'parent',
+        'title' => 'Nutanix Module',
+        'icon' => 'fa-cogs',
+        'showchild' => true,
+        'childitems' => array(
+            array(
+                'type' => 'link',
+                'title' => 'Create Nutanix VM',
+                'icon' => 'fa-plus',
+                'link' => 'addonmodule.php?module=nutanix&action=create_vm',
+            ),
+            // Add more admin links as needed
+        ),
+    );
+
+    return $menuitems;
+}
+
+
+function nutanix_output($vars) {
+    $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+
+    if ($action == 'create_vm') {
+        // Implement the logic for creating Nutanix VM from the admin interface
+        // You can use Nutanix API or perform any other necessary actions
+        // Display appropriate messages or forms
+        echo '<p>Create Nutanix VM page content goes here.</p>';
+    } else {
+        // Default admin module page content goes here
+        echo '<p>Default Nutanix Module admin page content goes here.</p>';
+    }
+}
+
+function nutanix_CreateAccount($params) {
+    // Extract necessary parameters from $params
+    $apiUrl = $params["configoption1"];
+    $apiKey = $params["configoption2"];
+    
+    // Extract product configuration options
+    $os = $params["configoption3"];
+    $uefi = $params["configoption4"];
+    $memory = $params["configoption5"];
+    $vcpu = $params["configoption6"];
+
+    // Use Nutanix API to create VM with the specified parameters
+    // Implement your Nutanix API call here
 }
 
 /**
@@ -149,40 +212,6 @@ function provisioningmodule_ConfigOptions()
  *
  * @return string "success" or an error message
  */
-function provisioningmodule_CreateAccount(array $params)
-{
-    try {
-        // Call the service's provisioning function, using the values provided
-        // by WHMCS in `$params`.
-        //
-        // A sample `$params` array may be defined as:
-        //
-        // ```
-        // array(
-        //     'domain' => 'The domain of the service to provision',
-        //     'username' => 'The username to access the new service',
-        //     'password' => 'The password to access the new service',
-        //     'configoption1' => 'The amount of disk space to provision',
-        //     'configoption2' => 'The new services secret key',
-        //     'configoption3' => 'Whether or not to enable FTP',
-        //     ...
-        // )
-        // ```
-    } catch (Exception $e) {
-        // Record the error in WHMCS's module log.
-        logModuleCall(
-            'provisioningmodule',
-            __FUNCTION__,
-            $params,
-            $e->getMessage(),
-            $e->getTraceAsString()
-        );
-
-        return $e->getMessage();
-    }
-
-    return 'success';
-}
 
 /**
  * Suspend an instance of a product/service.
@@ -197,26 +226,7 @@ function provisioningmodule_CreateAccount(array $params)
  *
  * @return string "success" or an error message
  */
-function provisioningmodule_SuspendAccount(array $params)
-{
-    try {
-        // Call the service's suspend function, using the values provided by
-        // WHMCS in `$params`.
-    } catch (Exception $e) {
-        // Record the error in WHMCS's module log.
-        logModuleCall(
-            'provisioningmodule',
-            __FUNCTION__,
-            $params,
-            $e->getMessage(),
-            $e->getTraceAsString()
-        );
 
-        return $e->getMessage();
-    }
-
-    return 'success';
-}
 
 /**
  * Un-suspend instance of a product/service.
@@ -231,26 +241,7 @@ function provisioningmodule_SuspendAccount(array $params)
  *
  * @return string "success" or an error message
  */
-function provisioningmodule_UnsuspendAccount(array $params)
-{
-    try {
-        // Call the service's unsuspend function, using the values provided by
-        // WHMCS in `$params`.
-    } catch (Exception $e) {
-        // Record the error in WHMCS's module log.
-        logModuleCall(
-            'provisioningmodule',
-            __FUNCTION__,
-            $params,
-            $e->getMessage(),
-            $e->getTraceAsString()
-        );
 
-        return $e->getMessage();
-    }
-
-    return 'success';
-}
 
 /**
  * Terminate instance of a product/service.
@@ -264,26 +255,7 @@ function provisioningmodule_UnsuspendAccount(array $params)
  *
  * @return string "success" or an error message
  */
-function provisioningmodule_TerminateAccount(array $params)
-{
-    try {
-        // Call the service's terminate function, using the values provided by
-        // WHMCS in `$params`.
-    } catch (Exception $e) {
-        // Record the error in WHMCS's module log.
-        logModuleCall(
-            'provisioningmodule',
-            __FUNCTION__,
-            $params,
-            $e->getMessage(),
-            $e->getTraceAsString()
-        );
 
-        return $e->getMessage();
-    }
-
-    return 'success';
-}
 
 /**
  * Change the password for an instance of a product/service.
@@ -301,35 +273,7 @@ function provisioningmodule_TerminateAccount(array $params)
  *
  * @return string "success" or an error message
  */
-function provisioningmodule_ChangePassword(array $params)
-{
-    try {
-        // Call the service's change password function, using the values
-        // provided by WHMCS in `$params`.
-        //
-        // A sample `$params` array may be defined as:
-        //
-        // ```
-        // array(
-        //     'username' => 'The service username',
-        //     'password' => 'The new service password',
-        // )
-        // ```
-    } catch (Exception $e) {
-        // Record the error in WHMCS's module log.
-        logModuleCall(
-            'provisioningmodule',
-            __FUNCTION__,
-            $params,
-            $e->getMessage(),
-            $e->getTraceAsString()
-        );
 
-        return $e->getMessage();
-    }
-
-    return 'success';
-}
 
 /**
  * Upgrade or downgrade an instance of a product/service.
